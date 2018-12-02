@@ -5,7 +5,9 @@ import com.oocl.web.sampleWebApp.domain.ParkingBoy;
 import com.oocl.web.sampleWebApp.domain.ParkingBoyRepository;
 import com.oocl.web.sampleWebApp.models.ParkingBoyResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -30,11 +32,13 @@ public class ParkingBoyResource {
     }
 
     @PostMapping(produces = {"application/json"})
-    public ResponseEntity<String> createParkingBoy(@RequestBody ParkingBoy parkingBoy) {
-        final ParkingBoy createdParkingBoy = parkingBoyRepository.save(parkingBoy);
-        parkingBoyRepository.flush();
+    public ResponseEntity<String> createParkingBoy(@RequestBody String employeeId) {
+        if (parkingBoyRepository.findByEmployeeId(employeeId) != null){
 
-        return ResponseEntity.created(create(restLocation + createdParkingBoy.getId())).build();
-
+            ParkingBoy parkingBoy = new ParkingBoy(employeeId);
+            final ParkingBoy createdParkingBoy = parkingBoyRepository.save(parkingBoy);
+            return ResponseEntity.created(create(restLocation + createdParkingBoy.getId())).build();
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 }
