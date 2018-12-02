@@ -19,8 +19,7 @@ import static com.oocl.web.sampleWebApp.WebTestUtil.getContentAsObject;
 import static jdk.nashorn.internal.objects.NativeDate.toJSON;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,14 +42,16 @@ public class ParkingBoyTest {
         ObjectMapper mapper = new ObjectMapper();
         final String expectedParkingBoyInJson = mapper.writeValueAsString(expectedParkingBoy);
         final String url = "/parkingboys";
+        final String redirecturl = url + "/" + parkingBoyRepository.getOne(1L).getId();
 
         //When
         mvc.perform(MockMvcRequestBuilders.post(url)
         .contentType(MediaType.APPLICATION_JSON).content(expectedParkingBoyInJson))
 
         //Then
-        .andExpect(status().isCreated())
-        .andExpect(header().string("Location", containsString(url + "/" + parkingBoyRepository.getOne(1L).getId())));
 
+        .andExpect(status().isCreated())
+        .andExpect(header().string("Location", containsString(redirecturl)))
+        .andExpect(redirectedUrl(redirecturl));
     }
 }
